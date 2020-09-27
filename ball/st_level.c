@@ -114,7 +114,7 @@ static int level_click(int b, int d)
     else if (b == SDL_BUTTON_RIGHT && d == 1)
     {
         progress_stop();
-        return goto_state(&st_exit);
+        return goto_exit();
     }
     return 1;
 }

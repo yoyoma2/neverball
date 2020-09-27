@@ -847,7 +847,7 @@ struct state st_demo_play = {
     NULL,
     demo_play_stick,
     NULL,
-    shared_click_basic,
+    demo_play_click,
     demo_play_keybd,
     demo_play_buttn,
     demo_play_wheel
