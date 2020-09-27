@@ -318,6 +318,8 @@ static int set_load(struct set *s, const char *filename)
         return 1;
     }
 
+    log_printf("Failure to load set file %s\n", filename);
+
     free(s->name);
     free(s->desc);
     free(s->id);
@@ -499,9 +501,15 @@ static void set_load_levels(void)
         l->number = i;
 
         if (l->is_bonus)
-            SAFECPY(l->name, roman[bonus++]);
+        {
+            SAFECPY(l->name, roman[bonus]);
+            bonus++;
+        }
         else
-            sprintf(l->name, "%02d", regular++);
+        {
+            sprintf(l->name, "%02d", regular);
+            regular++;
+        }
 
         l->is_locked = (i > 0);
         l->is_completed = 0;

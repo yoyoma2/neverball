@@ -209,6 +209,8 @@ void conf_common_init(int (*action_fn)(int, int))
 
 void conf_common_leave(struct state *st, struct state *next, int id)
 {
+    config_save();
+
     back_free();
 
     gui_delete(id);
@@ -727,6 +729,24 @@ void lang_leave(struct state *st, struct state *next, int id)
     conf_common_leave(st, next, id);
 }
 
+static int lang_buttn(int b, int d)
+{
+    if (d)
+    {
+        int active = gui_active();
+
+        if (config_tst_d(CONFIG_JOYSTICK_BUTTON_A, b))
+            return lang_action(gui_token(active), gui_value(active));
+        if (config_tst_d(CONFIG_JOYSTICK_BUTTON_B, b))
+            return lang_action(GUI_BACK, 0);
+        if (config_tst_d(CONFIG_JOYSTICK_BUTTON_L1, b) && first > 0)
+            return lang_action(GUI_PREV, 0);
+        if (config_tst_d(CONFIG_JOYSTICK_BUTTON_R1, b) && first + LANG_STEP < array_len(langs))
+            return lang_action(GUI_NEXT, 0);
+    }
+    return 1;
+}
+
 /*---------------------------------------------------------------------------*/
 
 struct state st_video = {
@@ -778,7 +798,7 @@ struct state st_lang = {
     NULL,
     common_click,
     common_keybd,
-    common_buttn
+    lang_buttn
 };
 
 /*---------------------------------------------------------------------------*/

@@ -1,4 +1,5 @@
 *.[od]
+*.bc
 *.sol
 *.desktop
 /locale
@@ -18,3 +19,7 @@
 /mapc.exe
 /contrib/curve.exe
 /*.dll
+
+/js/neverball.data
+/js/neverball.js
+/js/neverball.wasm

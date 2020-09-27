@@ -1,11 +1,10 @@
 
 #------------------------------------------------------------------------------
 
-BUILD := $(shell head -n1 .build 2> /dev/null || echo release)
+# Build: devel, release
+BUILD := $(shell cat neverball-build.txt 2> /dev/null || echo release)
 
-VERSION := 1.6.0
-VERSION := $(shell sh scripts/version.sh "$(BUILD)" "$(VERSION)" \
-	"share/version.in.h" "share/version.h" ".version")
+VERSION := $(shell sh scripts/version.sh)
 
 $(info Will make a "$(BUILD)" build of Neverball $(VERSION).)
 
@@ -147,9 +146,6 @@ ENABLE_FS := stdio
 ifeq ($(ENABLE_FS),stdio)
 FS_LIBS :=
 endif
-ifeq ($(ENABLE_FS),physfs)
-FS_LIBS := -lphysfs
-endif
 
 # The  non-conditionalised values  below  are specific  to the  native
 # system. The native system of this Makefile is Linux (or GNU+Linux if
@@ -161,11 +157,15 @@ INTL_LIBS :=
 ifeq ($(ENABLE_TILT),wii)
 	TILT_LIBS := -lcwiimote -lbluetooth
 else
+ifeq ($(ENABLE_TILT),wiiuse)
+	TILT_LIBS := -lwiiuse
+else
 ifeq ($(ENABLE_TILT),loop)
 	TILT_LIBS := -lusb-1.0 -lfreespace
 else
 ifeq ($(ENABLE_TILT),leapmotion)
 	TILT_LIBS := /usr/lib/Leap/libLeap.so -Wl,-rpath,/usr/lib/Leap
+endif
 endif
 endif
 endif
@@ -181,7 +181,6 @@ ifeq ($(PLATFORM),mingw)
 		INTL_LIBS := -lintl
 	endif
 
-	TILT_LIBS :=
 	OGL_LIBS  := -lopengl32
 endif
 
@@ -190,7 +189,6 @@ ifeq ($(PLATFORM),darwin)
 		INTL_LIBS := -lintl
 	endif
 
-	TILT_LIBS :=
 	OGL_LIBS  := -framework OpenGL
 endif
 
@@ -375,18 +373,16 @@ BALL_OBJS += share/solid_sim_sol.o
 PUTT_OBJS += share/solid_sim_sol.o
 
 ifeq ($(ENABLE_FS),stdio)
-BALL_OBJS += share/fs_stdio.o
-PUTT_OBJS += share/fs_stdio.o
-MAPC_OBJS += share/fs_stdio.o
-endif
-ifeq ($(ENABLE_FS),physfs)
-BALL_OBJS += share/fs_physfs.o
-PUTT_OBJS += share/fs_physfs.o
-MAPC_OBJS += share/fs_physfs.o
+BALL_OBJS += share/fs_stdio.o share/miniz.o
+PUTT_OBJS += share/fs_stdio.o share/miniz.o
+MAPC_OBJS += share/fs_stdio.o share/miniz.o
 endif
 
 ifeq ($(ENABLE_TILT),wii)
 BALL_OBJS += share/tilt_wii.o
+else
+ifeq ($(ENABLE_TILT),wiiuse)
+BALL_OBJS += share/tilt_wiiuse.o
 else
 ifeq ($(ENABLE_TILT),loop)
 BALL_OBJS += share/tilt_loop.o
@@ -395,6 +391,7 @@ ifeq ($(ENABLE_TILT),leapmotion)
 BALL_OBJS += share/tilt_leapmotion.o
 else
 BALL_OBJS += share/tilt_null.o
+endif
 endif
 endif
 endif
